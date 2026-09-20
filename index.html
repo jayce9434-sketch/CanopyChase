@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#0e2a21" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Canopy Chase" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Canopy Chase</title>
+</head>
+<body>
+  <canvas id="game" aria-label="Canopy Chase game canvas"></canvas>
+
+  <div id="topbar">
+    <div class="pill brand">CANOPY CHASE</div>
+    <div class="pill" id="modePill">TAG</div>
+    <div class="pill" id="mapPill">FOREST</div>
+    <div class="pill" id="roomPill">ROOM: PUBLIC</div>
+    <div class="pill" id="currencyPill">✦ 0 Glow Stone</div>
+  </div>
+
+  <button id="menuBtn" class="roundBtn" aria-label="Open menu">☰</button>
+  <button id="thumbBtn" class="roundBtn thumb" aria-label="Thumb press mod menu">👍</button>
+  <button id="talkBtn" class="roundBtn talk" aria-label="Open lobby chat">💬</button>
+
+  <div id="leftStick" class="stick"><div class="stickKnob"></div><span>L HAND</span></div>
+  <div id="rightStick" class="stick"><div class="stickKnob"></div><span>R HAND</span></div>
+
+  <div id="fingerLeft" class="fingerCluster">
+    <button data-finger="lIndex">L INDEX</button>
+    <button data-finger="lGrip">L GRIP</button>
+  </div>
+  <div id="fingerRight" class="fingerCluster">
+    <button data-finger="rIndex">R INDEX</button>
+    <button data-finger="rGrip">R GRIP</button>
+  </div>
+
+  <div id="toast"></div>
+  <aside id="chatPanel" class="chatPanel hidden" aria-label="Lobby chat">
+    <div class="chatHeader"><div><b>LOBBY CHAT</b><small>Bots understand game talk, feelings, places, and commands</small></div><button data-close="chatPanel" aria-label="Close chat">✕</button></div>
+    <div id="chatLog" class="chatLog"></div>
+    <div class="chatComposer"><input id="chatInput" maxlength="120" autocomplete="off" placeholder="Chat with everyone…"/><button id="chatSend">SEND</button></div>
+  </aside>
+
+  <aside id="panel" class="panel hidden">
+    <div class="panelHeader"><div><b>CANOPY TERMINAL</b><small>maps • rooms • cosmetics • settings</small></div><button data-close="panel">✕</button></div>
+    <div class="tabs">
+      <button class="tab active" data-tab="play">PLAY</button>
+      <button class="tab" data-tab="shop">SHOP</button>
+      <button class="tab" data-tab="settings">SETTINGS</button>
+    </div>
+    <section id="tab-play" class="tabpage">
+      <h3>GAME MODE</h3>
+      <div class="modeGrid">
+        <button data-mode="Casual">CASUAL<small>hang out + explore</small></button>
+        <button data-mode="Tag">TAG<small>one tagger, everyone runs</small></button>
+        <button data-mode="Infection">INFECTION<small>taggers multiply</small></button>
+        <button data-mode="Echo Hunt">ECHO HUNT<small>sound wakes the hunter</small></button>
+      </div>
+      <h3>MAP</h3>
+      <div class="mapGrid">
+        <button data-map="forest">🌲 FOREST<small>trees, logs + open routes</small></button>
+        <button data-map="plaza">🎩 HAT PLAZA<small>shops + mirrors + stalls</small></button>
+        <button data-map="cave">🕳️ DARK CAVES<small>echoes + random scares</small></button>
+        <button data-map="boards">🏆 LEADERBOARDS<small>score hall + practice ring</small></button>
+      </div>
+      <h3>PRIVATE ROOM</h3>
+      <div class="roomRow"><input id="roomCode" maxlength="8" placeholder="ROOM CODE"/><button id="joinRoom">JOIN</button><button id="newRoom">NEW</button></div>
+      <p class="hint">Room 666 acts different. Bots know it too.</p>
+      <h3>COLOR CODE</h3>
+      <div class="roomRow"><input id="colorCode" maxlength="3" inputmode="numeric" placeholder="597"/><button id="applyColor">APPLY</button></div>
+      <h3>INSTALL</h3>
+      <button id="installBtn" class="wideBtn">ADD TO HOME SCREEN / INSTALL</button>
+    </section>
+    <section id="tab-shop" class="tabpage hidden">
+      <div class="shopHeader"><div><h3>COSMETIC MARKET</h3><small>HATS • HOLDABLES • SHIRTS • BACK • FACE</small></div><span id="eventTimer"></span></div>
+      <div id="shopGrid" class="shopGrid"></div>
+    </section>
+    <section id="tab-settings" class="tabpage hidden">
+      <h3>PLAYER</h3>
+      <div class="roomRow"><input id="playerName" maxlength="16" placeholder="YOUR NAME"/><button id="applyName">RENAME</button></div>
+      <p class="hint">Your special Owner Beacon is already unlocked. Bots get excited when they see it; only 1.5% of bots can spawn with one.</p>
+      <label>Master volume <input id="volumeRange" type="range" min="0" max="1" step="0.05"/></label>
+      <label>Bot skill <input id="skillRange" type="range" min="0.35" max="1" step="0.05"/></label>
+      <label><input id="reducedMotion" type="checkbox"/> Reduced motion</label>
+      <label><input id="voiceToggle" type="checkbox"/> Bot voices</label>
+      <button id="resetData" class="danger wideBtn">RESET SAVE</button>
+    </section>
+  </aside>
+
+  <aside id="modPanel" class="panel mod hidden">
+    <div class="panelHeader"><div><b>THUMB MOD MENU</b><small>private sandbox tools</small></div><button data-close="modPanel">✕</button></div>
+    <div id="modGrid" class="modGrid">
+      <button data-mod="longArms">LONG ARMS</button>
+      <button data-mod="platforms">PLATFORMS</button>
+      <button data-mod="ghost">GHOST MONKE</button>
+      <button data-mod="invisible">INVISIBLE MONKE</button>
+      <button data-mod="kickGun">KICK GUN</button>
+      <button data-mod="banGun">BAN GUN</button>
+      <button data-mod="soundboard">SOUNDBOARD</button>
+    </div>
+    <div id="soundboard" class="soundboard hidden">
+      <button data-sound="static">STATIC</button><button data-sound="whisper">WHISPER</button>
+      <button data-sound="alarm">ALARM</button><button data-sound="heartbeat">HEARTBEAT</button>
+      <button data-sound="scrape">SCRAPE</button><button data-sound="drone">DARK DRONE</button>
+    </div>
+    <p class="hint">Kick Gun removes a bot and opens a replacement slot. Ban Gun blocks that bot for 4 minutes. Aim with your right-hand beam and press R INDEX.</p>
+  </aside>
+
+  <div id="banScreen" class="banScreen hidden">
+    <div class="banCard">
+      <div class="banIcon">⛔</div>
+      <h1>BANNED BY MORSE</h1>
+      <p>Multiplayer is locked until the timer expires.</p>
+      <div id="banCountdown">02:00</div>
+      <button id="banSoloBtn">PLAY SOLO CASUAL</button>
+      <small>The timer uses real time, so closing the game does not pause it.</small>
+    </div>
+  </div>
+
+  <div id="kickScreen" class="banScreen hidden">
+    <div class="banCard kickCard">
+      <div class="banIcon">👻</div>
+      <h1>KICKED BY MORSE</h1>
+      <p>you really got randomly kicked by a bot 😭</p>
+      <div id="kickCountdown">REJOINING…</div>
+    </div>
+  </div>
+
+  <div id="startScreen">
+    <div class="startCard">
+      <div class="logoMark">CC</div>
+      <h1>CANOPY CHASE</h1>
+      <p>arm-run • tag • climb • panic</p>
+      <button id="startBtn">ENTER FOREST</button>
+      <small>iOS: use both hand joysticks. Desktop: WASD + mouse/touch controls.</small>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
